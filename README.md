@@ -22,7 +22,7 @@ edited bundle → CRC check disabled → loads normally
 
 ## How to Use
 
-1. **Open** the app — no installation or setup needed
+1. **Open** the app — after installation
 2. **Pick the format** — `catalog.bin` or `catalog.json` (also auto-detected from the dropped file)
 3. **Drop** your catalog file — every bundle entry is scanned and listed with its current CRC and size
 4. **Click** "Disable All CRC Checks" — every CRC field is zeroed and a new `catalog.hash` is computed
@@ -39,10 +39,8 @@ That's it. No coding. No hex editor required.
 - **JSON field patching** — renames every `"m_Crc"` key to `"d_Crc"` in the JSON catalog, a field name Unity's Addressables loader ignores, disabling the check without touching the JSON structure
 - **Bundle entry table** — lists every detected bundle with its name, hash, current CRC status (active or disabled), and size before you commit to patching
 - **Automatic hash recompute** — generates a correct `catalog.hash` (MD5) for the patched file, since Unity validates the catalog against this hash before it even reads the bundle entries
-- **Operation log** — a running, timestamped log of every parse and patch step, useful for confirming exactly what changed and troubleshooting a file that doesn't parse
-- **Pipeline indicator** — Load → Parse → Patch CRC → Export, so you always know where you are in the process
 - **Bilingual UI** — English / عربي toggle for the interface and the in-app guide, with automatic RTL layout in Arabic
-- **Fully offline** — everything runs in your browser; no file is ever uploaded anywhere
+- **Fully offline** — everything runs on you machine; no file is ever uploaded anywhere
 
 ---
 
@@ -67,28 +65,9 @@ Replace these two files in your game's `StreamingAssets` folder (or wherever you
 
 ---
 
-## Why Not Other Tools?
-
-Other approaches to this problem are either destructive, manual, or engine-blind:
-
-- ❌ Manual hex editing of the binary catalog, one CRC field at a time
-- ❌ Rebuilding the entire catalog from source, requiring the original Addressables project
-- ❌ No visibility into which bundles are actually affected before you commit
-- ❌ Forgetting to update `catalog.hash`, which breaks the load even after a correct CRC patch
-
-**This tool:**
-- ✅ Parses and previews every bundle entry before you patch anything
-- ✅ Handles both catalog formats with the same workflow
-- ✅ Recomputes the hash automatically — no separate MD5 step
-- ✅ Clean UI, full operation log — no coding knowledge needed
-- ✅ Native, free, lightweight
-- ✅ Fully offline
-
----
-
 ## Technical Details
 
-- Pure HTML/CSS/JavaScript — zero external runtime dependencies
+- Pure HTML — zero external runtime dependencies
 - Binary parsing scans for Unity's `BinaryStorageBuffer` hash-string pattern (a 32-byte hex hash string followed by reference offsets, a CRC `uint32`, and a size `uint32`), validated against plausible bundle-size and CRC-value ranges to avoid false positives
 - Bundle names are recovered by scanning backwards from each matched entry for a `.bundle`-suffixed string
 - JSON catalogs are patched via direct string field renaming; catalogs with an embedded `m_ExtraDataString` (base64-encoded binary blob) are also decoded and scanned for bundle entries for visibility
